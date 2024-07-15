@@ -23,7 +23,6 @@ import errno
 from sys import exc_info
 from threading import Event
 
-import keyring
 
 from offlineimap import folder, imaputil, imapserver, OfflineImapError
 from offlineimap.repository.Base import BaseRepository
@@ -848,7 +847,8 @@ class IMAPRepository(BaseRepository):
             try:
                 self.makefolder_single(folder_path)
             except OfflineImapError as exc:
-                if '[ALREADYEXISTS]' not in exc.reason:
+                reasonLower = exc.reason.lower()  # Handle reasons '[ALREADYEXISTS]' and 'Mailbox already exists!' @chris001
+                if not ('already' in reasonLower and 'exists' in reasonLower): 
                     raise
 
     def makefolder_single(self, foldername):
